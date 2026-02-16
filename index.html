@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EquiLeap AI | Hackathon Dashboard ⚡</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        /* CSS: HACKATHON CYBERPUNK THEME ⚡ */
+        :root {
+            --bg-dark: #000000;
+            --card-bg: rgba(10, 10, 15, 0.9);
+            --primary: #00ffff;   /* Neon Cyan */
+            --accent: #ff00ff;    /* Neon Magenta */
+            --secondary: #00ff88; /* Neon Green */
+            --text: #ffffff;
+            --muted: #a0a0a0;
+            --success: #00ff41;
+            --danger: #ff0040;
+            --glow-primary: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff;
+            --glow-accent: 0 0 20px #ff00ff, 0 0 40px #ff00ff, 0 0 60px #ff00ff;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: var(--glow-primary); }
+            50% { text-shadow: 0 0 30px #00ffff, 0 0 50px #00ffff, 0 0 80px #00ffff; }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        @keyframes bgShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes particles {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes slideUp { 
+            from { transform: translateY(30px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%),
+                #000;
+            background-size: 200% 200%;
+            animation: bgShift 10s ease infinite;
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(0deg, transparent 0%, rgba(0,0,0,0.05) 50%, transparent 100%),
+                linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 100% 2px, 20px 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #00ffff, transparent),
+                radial-gradient(2px 2px at 40px 70px, #ff00ff, transparent),
+                radial-gradient(1px 1px at 90px 40px, #00ff88, transparent),
+                radial-gradient(1px 1px at 130px 80px, #ff00ff, transparent);
+            background-repeat: repeat;
+            background-position: 0 0, 40px 60px, 130px 70px, 80px 50px;
+            animation: particles 20s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 3rem;
+            border: 1px solid transparent;
+            background-clip: padding-box;
+            backdrop-filter: blur(20px);
+            box-shadow: 
+                0 25px 60px rgba(0,0,0,0.7),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        h2 { 
+            font-family: 'Orbitron', monospace;
+            color: var(--primary); 
+            text-transform: uppercase; 
+            letter-spacing: 4px; 
+            margin-bottom: 30px;
+            font-weight: 900;
+            font-size: 1.8rem;
+            animation: pulse-glow 2s infinite;
+            position: relative;
+        }
+
+        h2:hover {
+            animation: glitch 0.3s infinite;
+            color: var(--accent);
+        }
+
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+        }
+
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+        }
+
+        label { 
+            font-size: 0.8rem; 
+            font-weight: 700; 
+            color: var(--secondary); 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        input, select {
+            background: rgba(20, 20, 30, 0.95);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            color: var(--text);
+            outline: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        input:focus, select:focus { 
+            border-color: var(--primary); 
+            box-shadow: var(--glow-primary);
+            transform: scale(1.02);
+        }
+
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(20, 20, 30, 0.95);
+            border: 2px dashed rgba(0, 255, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary);
+            box-shadow: var(--glow-primary);
+        }
+
+        .file-upload input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-upload-text {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .file-status {
+            display: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .file-verified {
+            background: rgba(0, 255, 65, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .file-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffd700;
+            border: 1px solid #ffd700;
+        }
+
+        .doc-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 18px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 1rem;
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            transition: all 0.4s ease;
+            font-weight: 600;
+        }
+
+        .doc-item:hover {
+            border-color: var(--primary);
+            box-shadow: var(--glow-primary);
+            transform: translateX(5px);
+        }
+
+        .status-dot { 
+            width: 16px; 
+            height: 16px; 
+            border-radius: 50%; 
+            background: #333; 
+            transition: all 0.5s ease;
+            box-shadow: 0 0 10px rgba(0,255,255,0.3);
+        }
+
+        .status-dot.active {
+            background: var(--secondary);
+            box-shadow: var(--glow-accent);
+            animation: pulse-glow 1s infinite;
+        }
+
+        .btn-analyze {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(45deg, var(--accent), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 
+                0 10px 30px rgba(255,0,255,0.4),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            letter-spacing: 2px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-analyze:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 
+                0 15px 40px rgba(255,0,255,0.6),
+                0 0 30px rgba(0,255,255,0.5);
+            animation: glitch 0.1s infinite;
+        }
+
+        .btn-analyze:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn-analyze:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        #loader { 
+            display: none; 
+            text-align: center; 
+            padding: 35px 0;
+            font-family: 'Orbitron', monospace;
+        }
+
+        #result-view { 
+            display: none; 
+            animation: slideUp 0.6s ease; 
+            text-align: center; 
+        }
+
+        .badge { 
+            padding: 12px 25px; 
+            border-radius: 50px; 
+            font-weight: 900; 
+            font-size: 0.85rem; 
+            margin-bottom: 20px; 
+            display: inline-block; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Orbitron', monospace;
+            box-shadow: var(--glow-primary);
+        }
+
+        .approved { 
+            background: linear-gradient(45deg, rgba(0,255,65,0.2), rgba(0,255,200,0.2)); 
+            color: var(--success); 
+            border: 2px solid var(--success); 
+        }
+
+        .denied { 
+            background: linear-gradient(45deg, rgba(255,0,64,0.2), rgba(255,100,100,0.2)); 
+            color: var(--danger); 
+            border: 2px solid var(--danger); 
+        }
+
+        .xai-box {
+            background: rgba(0, 255, 255, 0.08);
+            padding: 20px; 
+            border-radius: 15px; 
+            text-align: left;
+            border-left: 4px solid var(--primary); 
+            font-size: 0.9rem; 
+            margin-top: 25px;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--glow-primary);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <div class="card">
+        <h2>Loan Application 📝</h2>
+        <div class="form-grid">
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="name" placeholder="Aasmi Tate" value="Aasmi Tate">
+            </div>
+            <div class="input-group">
+                <label>Age</label>
+                <input type="number" id="age" value="25" min="18" max="70">
+            </div>
+            <div class="input-group">
+                <label>Annual Income (₹)</label>
+                <input type="number" id="income" placeholder="50000" value="50000">
+            </div>
+            <div class="input-group">
+                <label>Desired Loan (₹)</label>
+                <input type="number" id="loan" placeholder="20000" value="20000">
+            </div>
+            <div class="input-group">
+                <label>Marital Status</label>
+                <select id="marital">
+                    <option>Single</option>
+                    <option>Married</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Credit History</label>
+                <select id="history">
+                    <option value="1">1 (Healthy)</option>
+                    <option value="0">0 (Flagged)</option>
+                </select>
+            </div>
+            <!-- Document Upload Section -->
+            <div class="input-group">
+                <label>ID Proof</label>
+                <div class="file-upload" onclick="document.getElementById('id-file').click()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" opacity=".3"/>
+                        <path d="M14 2L8 8h6a2 2 0 0 0 2-2V2zM20 20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h5v6a2 2 0 0 0 2 2h6v10z"/>
+                    </svg>
+                    <span class="file-upload-text">Upload ID (Aadhaar/PAN)</span>
+                    <input type="file" id="id-file" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+                <div id="id-status" class="file-status file-pending">Pending Verification</div>
+            </div>
+            <div class="input-group">
+                <label>Income Proof</label>
+                <div class="file-upload" onclick="document.getElementById('income-file').click()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" opacity=".3"/>
+                        <path d="M14 2L8 8h6a2 2 0 0 0 2-2V2zM20 20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h5v6a2 2 0 0 0 2 2h6v10z"/>
+                    </svg>
+                    <span class="file-upload-text">Upload Salary Slip/Bank Stmt</span>
+                    <input type="file" id="income-file" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+                <div id="income-status" class="file-status file-pending">Pending Verification</div>
+            </div>
+        </div>
+        <button class="btn-analyze" id="analyze-btn" onclick="processApplication()">Analyze Risk Profile ⚡</button>
+    </div>
+
+    <div class="card">
+        <h2>Intelligence Hub 🔍</h2>
+        <div id="hub-stream">
+            <p style="color: var(--secondary); font-size: 0.9rem; margin-bottom: 20px; font-weight: 700;">Verification Stream:</p>
+            <div class="doc-item">
+                <div class="status-dot" id="dot-id"></div> 
+                Digital ID Verification
+            </div>
+            <div class="doc-item">
+                <div class="status-dot" id="dot-income"></div> 
+                Income Statement Analysis
+            </div>
+            <div class="doc-item">
+                <div class="status-dot" id="dot-address"></div> 
+                Address & Utility Scan
+            </div>
+            <div class="doc-item">
+                <div class="status-dot" id="dot-metadata"></div> 
+                Metadata Consistency Check
+            </div>
+        </div>
+
+        <div id="loader">
+            <p style="color: var(--primary); font-size: 1rem; font-weight: 900;">🔗 CONNECTING TO BACKEND API...</p>
+            <p style="color: var(--secondary); font-size: 0.85rem; margin-top: 10px;">Processing with EquiLeap XAI Engine</p>
+        </div>
+
+        <div id="result-view">
+            <div id="badge" class="badge">--</div>
+            <h3 id="res-title" style="color: var(--primary); margin: 15px 0; font-family: 'Orbitron', monospace;">--</h3>
+            <p id="res-desc" style="font-size: 1rem; color: var(--muted); font-weight: 500;"></p>
+            <div class="xai-box">
+                <strong style="color: var(--secondary);">XAI Insight:</strong> Decisions weighted purely on Cashflow & History. Gender/Status weighted at 0.00%.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Backend-ready API endpoints (replace with your actual endpoints)
+    const API_BASE = '/api/v1/equileap'; // Update this path
+    
+    // File upload handlers
+    document.getElementById('id-file').addEventListener('change', handleFileUpload);
+    document.getElementById('income-file').addEventListener('change', handleFileUpload);
+
+    function handleFileUpload(e) {
+        const file = e.target.files[0];
+        const statusId = e.target.id === 'id-file' ? 'id-status' : 'income-status';
+        const statusEl = document.getElementById(statusId);
+        
+        if (file) {
+            statusEl.style.display = 'block';
+            statusEl.textContent = 'Verifying document...';
+            statusEl.className = 'file-status file-pending';
+            
+            // Simulate backend verification (replace with actual API call)
+            setTimeout(() => {
+                statusEl.textContent = 'Document Verified ✓';
+                statusEl.className = 'file-status file-verified';
+                updateAnalyzeButton();
+            }, 1500);
+        }
+    }
+
+    function updateAnalyzeButton() {
+        const btn = document.getElementById('analyze-btn');
+        const idVerified = document.getElementById('id-status').classList.contains('file-verified');
+        const incomeVerified = document.getElementById('income-status').classList.contains('file-verified');
+        
+        if (idVerified && incomeVerified) {
+            btn.disabled = false;
+            btn.textContent = 'Analyze Risk Profile ⚡';
+        } else {
+            btn.disabled = true;
+            btn.textContent = 'Upload Documents First';
+        }
+    }
+
+    function processApplication() {
+        const formData = {
+            name: document.getElementById('name').value,
+            age: parseInt(document.getElementById('age').value),
+            income: parseFloat(document.getElementById('income').value) || 0,
+            loan: parseFloat(document.getElementById('loan').value) || 0,
+            marital: document.getElementById('marital').value,
+            history: parseInt(document.getElementById('history').value) || 0,
+            documents: {
+                id: !!document.getElementById('id-file').files[0],
+                income: !!document.getElementById('income-file').files[0]
+            }
+        };
+
+        // Reset UI
+        document.getElementById('result-view').style.display = 'none';
+        const dots = ['dot-id', 'dot-income', 'dot-address', 'dot-metadata'];
+        dots.forEach(id => document.getElementById(id).classList.remove('active'));
+
+        // Show loader
+        document.getElementById('loader').style.display = 'block';
+
+        // Sequential verification animation
+        dots.forEach((id, index) => {
+            setTimeout(() => document.getElementById(id).classList.add('active'), (index + 1) * 600);
+        });
+
+        // Backend API call (uncomment when backend is ready)
+        /*
+        fetch(`${API_BASE}/analyze`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        })
+        .then(res => res.json())
+        .then(data => showResult(data))
+        .catch(err => showResult({approved: false, message: 'API Error'}));
+        */
+
+        // Demo logic (remove when backend is connected)
+        setTimeout(() => {
+            const dti = formData.income > 0 ? (formData.loan / formData.income) : 2;
+            const isApproved = (formData.history === 1 && dti < 0.7 && formData.income > 15000 && formData.documents.id && formData.documents.income);
+            
+            showResult({
+                approved: isApproved,
+                dti: dti,
+                probability: isApproved ? 94 : Math.max(0, Math.round((1 - dti * 0.5) * 40)),
+                income: formData.income
+            });
+        }, 3500);
+    }
+
+    function showResult(result) {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('result-view').style.display = 'block';
+
+        const badge = document.getElementById('badge');
+        const title = document.getElementById('res-title');
+        const desc = document.getElementById('res-desc');
+
+        if (result.approved) {
+            badge.textContent = `Probability: ${result.probability}%`;
+            badge.className = "badge approved";
+            title.textContent = "PRE-APPROVED 🎉";
+            desc.textContent = `Excellent profile! DTI: ${(result.dti*100).toFixed(1)}% | Income: ₹${result.income.toLocaleString()}`;
+            confetti({ 
+                particleCount: 200, 
+                spread: 80, 
+                origin: { y: 0.6 }, 
+                colors: ['#00ffff', '#ff00ff', '#00ff88']
+            });
+        } else {
+            badge.textContent = `Probability: ${result.probability}%`;
+            badge.className = "badge denied";
+            title.textContent = "ACTION REQUIRED ⚠️";
+            desc.innerHTML = `DTI: <strong>${(result.dti*100).toFixed(1)}%</strong> (Max: 70%)<br>Income: ₹${result.income.toLocaleString()} | History: ${result.history === 1 ? 'Good' : 'Flagged'}`;
+        }
+    }
+
+    // Initialize
+    window.addEventListener('load', () => {
+        updateAnalyzeButton();
+    });
+</script>
+
+</body>
+</html>
